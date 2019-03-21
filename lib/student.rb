@@ -25,36 +25,42 @@ class Student
   end
 
   def self.find_by_name(name)
-    self.all.select do |student|
-      student.name == name
-    end.first
+    sql = "SELECT * FROM students WHERE name = ?"
+    result = DB[:conn].execute(sql, name)[0]
+    self.new_from_db(result)
   end
 
   def self.all_students_in_grade_9
-    self.all.select do |student|
-      student.grade == "9"
+    sql = "SELECT * FROM students WHERE grade = \'9\'"
+    DB[:conn].execute(sql).map do |row|
+      self.new_from_db(row)
     end
   end
 
   def self.students_below_12th_grade
-    self.all.select do |student|
-      student.grade.to_i < 12
+    sql = "SELECT * FROM students WHERE grade < 12"
+    DB[:conn].execute(sql).map do |row|
+      self.new_from_db(row)
     end
   end
 
   def self.first_X_students_in_grade_10(x)
-    self.all.select do |student|
-      student.grade == "10"
-    end.slice(0...x)
+    sql = "SELECT * FROM students WHERE grade = 10 LIMIT ?"
+    DB[:conn].execute(sql, x).map do |row|
+      self.new_from_db(row)
+    end
   end
 
   def self.first_student_in_grade_10
-    self.first_X_students_in_grade_10(1).first
+    sql = "SELECT * FROM students WHERE grade = 10 LIMIT 1"
+    result = DB[:conn].execute(sql)[0]
+    self.new_from_db(result)
   end
 
   def self.all_students_in_grade_X(x)
-    self.all.select do |student|
-      student.grade.to_i == x
+    sql = "SELECT * FROM students WHERE grade = ?"
+    DB[:conn].execute(sql, x).map do |row|
+      self.new_from_db(row)
     end
   end
 
